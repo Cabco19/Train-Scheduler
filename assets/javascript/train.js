@@ -2,10 +2,8 @@
 
 // 1. Initialize Firebase
 // 2. Create button for adding new train - then update the html + update the database
-// 3. Create a way to retrieve employees from the employee database.
-// 4. Create a way to calculate the months worked. Using difference between start and current time.
-//    Then use moment.js formatting to set difference in months.
-// 5. Calculate Total billed
+// 3. Create a way to train info from the train database.
+// 4. Create a way to calculate the minutes until next train. Using difference between first train and current time.//    
 
 // 1. Initialize Firebase
 var config = {
@@ -26,28 +24,22 @@ var config = {
 $("#add-train-btn").on("click", function(event) {
     event.preventDefault();
   
-    // Grabs user input
+    // Grab user input
     var trainName = $("#train-name-input").val().trim();
     var trainDestination = $("#destination-input").val().trim();
-    var trainTime = moment($("#first-train-input").val().trim(), "HH:mm").format("X");
+    var firstTrain = $("#first-train-input").val().trim();
     var trainFrequency = $("#frequency-input").val().trim();
   
     // Creates local "temporary" object for holding train data
     var newTrain = {
       name: trainName,
       destination: trainDestination,
-      time: trainTime,
+      time: firstTrain,
       frequency: trainFrequency
     };
   
     // Uploads train data to the database
     database.ref().push(newTrain);
-  
-    // Logs everything to console
-    console.log(newTrain.name);
-    console.log(newTrain.destination);
-    console.log(newTrain.time);
-    console.log(newTrain.frequency);
   
     alert("Train successfully added");
   
@@ -65,19 +57,26 @@ $("#add-train-btn").on("click", function(event) {
     // Store everything into a variable
     var trainName = childSnapshot.val().name;
     var trainDestination = childSnapshot.val().destination;
-    var trainTime = childSnapshot.val().time;
+    var trainTime = moment(childSnapshot.val().time, "hh:mm");
     var trainFrequency = childSnapshot.val().frequency;
 
-    // Train Info
-    console.log("this is the new log " + trainName);
-
-    // Calculations here
+    // Calculate Train Times
+    // Calculate difference in minutes from train time to current time using moment.js
+    var minsDiff = moment().diff(moment(trainTime), "minutes");
+    // Calculate minutes left until next train
+    var remainder = minsDiff % trainFrequency;
+    var minutesLeft = trainFrequency - remainder;
+    
+    // Create next arrival variable and add to current time then format to hh:mm using moment.js
+    var nextArrival = moment().add(minutesLeft, "minutes").format("hh:mm");
 
     // Create the new row
-  var newRow = $("<tr>").append(
+    var newRow = $("<tr>").append(
     $("<td>").text(trainName),
     $("<td>").text(trainDestination),
-    $("<td>").text(trainFrequency)
+    $("<td>").text(trainFrequency),
+    $("<td>").text(nextArrival),
+    $("<td>").text(minutesLeft)
   );
 
     // Append the new row to the table
