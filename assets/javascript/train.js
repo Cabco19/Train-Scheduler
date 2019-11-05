@@ -58,17 +58,31 @@ $("#add-train-btn").on("click", function(event) {
     var trainName = childSnapshot.val().name;
     var trainDestination = childSnapshot.val().destination;
     var trainTime = moment(childSnapshot.val().time, "hh:mm");
+    // var currentTime = moment().format("HH:mm");
     var trainFrequency = childSnapshot.val().frequency;
 
     // Calculate Train Times
     // Calculate difference in minutes from train time to current time using moment.js
+    // add code if else statemtn or while and if current time is < first train then execute the momoent otheriwse subtract 12 hours or soemthign alonf these lines
     var minsDiff = moment().diff(moment(trainTime), "minutes");
+    console.log("Difference in minutes from first train is: " + minsDiff);
     // Calculate minutes left until next train
-    var remainder = minsDiff % trainFrequency;
-    var minutesLeft = trainFrequency - remainder;
+    var remainder = minsDiff % trainFrequency;    
     
-    // Create next arrival variable and add to current time then format to hh:mm using moment.js
-    var nextArrival = moment().add(minutesLeft, "minutes").format("hh:mm");
+    // Create next arrivail variable and add to current time then format to "hh:mm a" using moment.js
+    var nextArrival = "";
+    var minutesLeft = 0;
+    if (minsDiff <= 0) {
+      
+      // trainTime = moment(childSnapshot.val().time, "HH:mm").add(12, "hours");
+      // nextArrival = moment(trainTime, "minutes").format("hh:mm");      
+      minutesLeft = +- minsDiff + 1;
+      nextArrival = moment().add(minutesLeft, "minutes").format("hh:mm a");
+    }
+    else { 
+      minutesLeft = trainFrequency - remainder;  
+      nextArrival = moment().add(minutesLeft, "minutes").format("hh:mm a");
+    }  
 
     // Create the new row
     var newRow = $("<tr>").append(
